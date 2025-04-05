@@ -6,9 +6,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
+import Resources from "./pages/Resources";
+import Dashboard from "./pages/Dashboard";
 import LandingPredictor from "./pages/services/LandingPredictor";
 import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/NotFound";
+import ContactUs from "./pages/contact-us/ContactUs";
 
 // Home Section Pages
 import AboutSafelands from "./pages/home/AboutSafelands";
@@ -73,12 +76,14 @@ const App = () => (
           <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
           
           {/* Dashboard Section Routes */}
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/user-details" element={<UserDetails />} />
           <Route path="/dashboard/prediction-history" element={<PredictionHistory />} />
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/settings" element={<Settings />} />
           
           {/* Resources Section Routes */}
+          <Route path="/resources" element={<Resources />} />
           <Route path="/resources/blogs" element={<Blogs />} />
           <Route path="/resources/papers" element={<Papers />} />
           <Route path="/resources/news-events" element={<NewsEvents />} />
@@ -90,6 +95,7 @@ const App = () => (
           <Route path="/about-us/project-guide" element={<ProjectGuide />} />
           
           {/* Contact Us Section Routes */}
+          <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/contact-us/details" element={<ContactDetails />} />
           <Route path="/contact-us/faqs" element={<FAQs />} />
           <Route path="/contact-us/message" element={<SendMessage />} />

@@ -104,7 +104,12 @@ const Navbar = () => {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link to="/">
-                <img className="h-10 w-auto" src="/logo.png" alt="Safe Land AI Logo" />
+                <img className="h-10 w-auto" src="/logo.png" alt="Safe Land AI Logo" 
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://via.placeholder.com/150x50?text=Safe+Land+AI";
+                  }}
+                />
               </Link>
             </div>
           </div>
@@ -192,6 +197,7 @@ const Navbar = () => {
                         key={dropdownIndex}
                         to={dropdownItem.link}
                         className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                        onClick={() => setIsOpen(false)}
                       >
                         {dropdownItem.name}
                       </Link>
@@ -213,13 +219,13 @@ const Navbar = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Link to="/login" className="w-full">
+              <Link to="/login" className="w-full" onClick={() => setIsOpen(false)}>
                 <Button variant="outline" className="w-full flex items-center justify-center">
                   <LogIn className="h-4 w-4 mr-2" />
                   Login
                 </Button>
               </Link>
-              <Link to="/register" className="w-full">
+              <Link to="/register" className="w-full" onClick={() => setIsOpen(false)}>
                 <Button className="w-full flex items-center justify-center">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Register

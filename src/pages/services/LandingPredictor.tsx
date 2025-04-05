@@ -1,353 +1,330 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { Upload, CloudLightning, AlertTriangle } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-type FlightData = {
-  flightId: string;
-  parameters: {
-    [key: string]: number | string;
-  };
+// Define types for our form data
+type FlightParameter = {
+  id: string;
+  label: string;
+  value: string;
+  unit?: string;
 };
 
 type PredictionResult = {
   outcome: 'Hard Landing' | 'Soft Landing';
   probability: number;
-  riskLevel: 'Low' | 'Medium' | 'High';
+  factors: {
+    name: string;
+    value: number;
+  }[];
+  correctiveMeasures: string[];
 };
 
 const LandingPredictor = () => {
-  const [flightId, setFlightId] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [flightData, setFlightData] = useState<FlightData | null>(null);
+  const [parameters, setParameters] = useState<FlightParameter[]>([
+    { id: 'flightId', label: 'Flight ID', value: 'FL00001', unit: '' },
+    { id: 'altitude', label: 'Altitude AGL', value: '114.90142459033696', unit: 'ft' },
+    { id: 'verticalSpeed', label: 'Vertical Speed', value: '-697.0857951340611', unit: 'fpm' },
+    { id: 'touchdownVelocity', label: 'Touchdown Velocity', value: '8.157675519336271', unit: 'fps' },
+    { id: 'gForce', label: 'G-Force', value: '2.0079464650331493', unit: '' },
+    { id: 'windSpeed', label: 'Wind Speed', value: '27.4080745770085', unit: 'kts' },
+    { id: 'crosswind', label: 'Crosswind Component', value: '21.593703301516123', unit: 'kts' },
+    { id: 'visibility', label: 'Visibility', value: '2.1706653486504273', unit: 'miles' },
+    { id: 'runway', label: 'Runway Condition', value: 'Wet', unit: '' },
+    { id: 'throttle', label: 'Throttle Input', value: '78.4540591573562', unit: '%' },
+    { id: 'brakeForce', label: 'Brake Force', value: '26.8195376874058482', unit: '%' },
+    { id: 'flaps', label: 'Flaps Position', value: '30', unit: 'deg' },
+    { id: 'rudder', label: 'Rudder Deflection', value: '6.482173846744672', unit: 'deg' },
+    { id: 'aileron', label: 'Aileron Deflection', value: '2.6741872658752456', unit: 'deg' },
+    { id: 'landingGear', label: 'Landing Gear Force', value: '2018.70441665893328', unit: 'N' },
+    { id: 'spoiler', label: 'Spoiler Deployment', value: '4.672383597365293', unit: '%' },
+    { id: 'reverseThrust', label: 'Reverse Thrust', value: '39.801088109673982', unit: '%' },
+  ]);
+
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
-  const [activeTab, setActiveTab] = useState<'auto' | 'manual'>('auto');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
-  // Demo flight parameters
-  const flightParameters = [
-    { name: "Altitude_AGL_ft", label: "Altitude AGL (ft)", value: 0 },
-    { name: "Vertical_Speed_fpm", label: "Vertical Speed (fpm)", value: 0 },
-    { name: "Touchdown_Velocity_fps", label: "Touchdown Velocity (fps)", value: 0 },
-    { name: "G_Force", label: "G-Force", value: 0 },
-    { name: "Wind_Speed_kts", label: "Wind Speed (kts)", value: 0 },
-    { name: "Crosswind_Component_kts", label: "Crosswind Component (kts)", value: 0 },
-    { name: "Visibility_miles", label: "Visibility (miles)", value: 0 },
-    { name: "Runway_Condition", label: "Runway Condition", value: "Dry" },
-    { name: "Throttle_Input", label: "Throttle Input", value: 0 },
-    { name: "Brake_Force_pct", label: "Brake Force (%)", value: 0 },
-    { name: "Flaps_Position_deg", label: "Flaps Position (deg)", value: 0 },
-    { name: "Rudder_Deflection_deg", label: "Rudder Deflection (deg)", value: 0 },
-    { name: "Aileron_Deflection_deg", label: "Aileron Deflection (deg)", value: 0 },
-    { name: "Landing_Gear_Force_N", label: "Landing Gear Force (N)", value: 0 },
-    { name: "Spoiler_Deployment_pct", label: "Spoiler Deployment (%)", value: 0 },
-    { name: "Reverse_Thrust_pct", label: "Reverse Thrust (%)", value: 0 },
-  ];
-
-  const [manualParams, setManualParams] = useState<{[key: string]: number | string}>(
-    flightParameters.reduce((acc, param) => {
-      acc[param.name] = param.value;
-      return acc;
-    }, {} as {[key: string]: number | string})
-  );
-
-  const handleParamChange = (name: string, value: string) => {
-    setManualParams(prev => ({
-      ...prev,
-      [name]: name === "Runway_Condition" ? value : Number(value)
-    }));
+  const handleParameterChange = (id: string, value: string) => {
+    setParameters(prev => 
+      prev.map(param => param.id === id ? { ...param, value } : param)
+    );
   };
 
   const loadFlightData = () => {
-    if (!flightId) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid Flight ID",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsLoading(true);
-
-    // Simulate API call
+    
+    // Simulate API call with timeout
     setTimeout(() => {
-      // Demo data
-      const demoData: FlightData = {
-        flightId: flightId,
-        parameters: {
-          "Altitude_AGL_ft": 50.2,
-          "Vertical_Speed_fpm": -620.5,
-          "Touchdown_Velocity_fps": 8.2,
-          "G_Force": 1.35,
-          "Wind_Speed_kts": 12.0,
-          "Crosswind_Component_kts": 8.5,
-          "Visibility_miles": 9.8,
-          "Runway_Condition": "Dry",
-          "Throttle_Input": 10.5,
-          "Brake_Force_pct": 65.0,
-          "Flaps_Position_deg": 30.0,
-          "Rudder_Deflection_deg": 2.5,
-          "Aileron_Deflection_deg": 1.2,
-          "Landing_Gear_Force_N": 45000.0,
-          "Spoiler_Deployment_pct": 90.0,
-          "Reverse_Thrust_pct": 80.0,
-        }
-      };
-
-      setFlightData(demoData);
-      setManualParams(demoData.parameters);
-      setIsLoading(false);
-      
+      // We're just using the existing data since it's already populated
       toast({
         title: "Success",
-        description: `Flight data for flight ID: ${flightId} loaded successfully`,
+        description: `Flight data loaded successfully`,
       });
-    }, 1500);
+      setIsLoading(false);
+    }, 1000);
   };
 
   const loadWeatherData = () => {
     setIsLoading(true);
-
-    // Simulate API call
+    
+    // Simulate API call with timeout
     setTimeout(() => {
-      // Update only weather-related parameters
-      setManualParams(prev => ({
-        ...prev,
-        "Wind_Speed_kts": 14.5,
-        "Crosswind_Component_kts": 10.2,
-        "Visibility_miles": 8.5,
-        "Runway_Condition": "Wet", // Changed from Dry to Wet
-      }));
-
-      setIsLoading(false);
+      // Update weather-related parameters
+      setParameters(prev => 
+        prev.map(param => {
+          if (param.id === 'windSpeed') return { ...param, value: '25.5' };
+          if (param.id === 'crosswind') return { ...param, value: '18.7' };
+          if (param.id === 'visibility') return { ...param, value: '3.2' };
+          if (param.id === 'runway') return { ...param, value: 'Wet' };
+          return param;
+        })
+      );
       
       toast({
         title: "Weather Updated",
         description: "Latest weather data has been loaded",
       });
-    }, 1500);
+      setIsLoading(false);
+    }, 1000);
   };
 
-  const predict = () => {
+  const predictLanding = () => {
     setIsLoading(true);
-
-    // Simulate prediction API call
+    
+    // Simulate API call with timeout
     setTimeout(() => {
-      // Calculate outcome based on parameter values
-      // This is just a simplified simulation
-      const params = activeTab === 'auto' && flightData ? flightData.parameters : manualParams;
+      // Generate SHAP data
+      const factorsData = [
+        { name: 'G_Force', value: 0.715 },
+        { name: 'Landing_Gear_Force_N', value: 0.175 },
+        { name: 'Reverse_Thrust_pct', value: 0.065 },
+        { name: 'Touchdown_Velocity_fps', value: 0.045 },
+        { name: 'Aileron_Deflection_deg', value: 0.015 },
+        { name: 'Altitude_AGL_ft', value: 0.01 },
+        { name: 'Brake_Force_pct', value: 0.008 },
+        { name: 'Crosswind_Component_kts', value: -0.015 },
+        { name: 'Flaps_Position_deg', value: -0.012 },
+        { name: 'Rudder_Deflection_deg', value: -0.008 },
+        { name: 'Runway_Condition', value: -0.015 },
+        { name: 'Spoiler_Deployment_pct', value: -0.018 },
+        { name: 'Throttle_Input', value: 0.02 },
+        { name: 'Vertical_Speed_fpm', value: -0.025 },
+        { name: 'Visibility_miles', value: -0.01 },
+        { name: 'Wind_Speed_kts', value: -0.005 },
+      ];
       
-      const tdVelocity = typeof params.Touchdown_Velocity_fps === 'number' ? params.Touchdown_Velocity_fps : 0;
-      const gForce = typeof params.G_Force === 'number' ? params.G_Force : 0;
-      const windSpeed = typeof params.Wind_Speed_kts === 'number' ? params.Wind_Speed_kts : 0;
-      
-      // Simple logic for demo purposes
-      const isHardLanding = tdVelocity > 7.5 || gForce > 1.3 || windSpeed > 15;
-      const probability = isHardLanding ? 
-        0.5 + Math.random() * 0.5 : // 50-100% probability for hard landing
-        Math.random() * 0.4;        // 0-40% probability for soft landing
-      
+      // Create prediction result
       const result: PredictionResult = {
-        outcome: isHardLanding ? 'Hard Landing' : 'Soft Landing',
-        probability: Number((probability * 100).toFixed(1)),
-        riskLevel: probability > 0.7 ? 'High' : probability > 0.3 ? 'Medium' : 'Low'
+        outcome: 'Hard Landing',
+        probability: 95.5,
+        factors: factorsData,
+        correctiveMeasures: [
+          'Reduce G-force to below 1.5 (current: 0.715 SHAP).',
+          'Reduce landing gear force by 200-500 N (current: 0.175 SHAP).'
+        ]
       };
       
       setPrediction(result);
+      setShowResults(true);
       setIsLoading(false);
       
       toast({
         title: "Prediction Complete",
         description: `Prediction: ${result.outcome} with ${result.probability}% probability`,
-        variant: result.outcome === 'Hard Landing' ? "destructive" : "default",
+        variant: "destructive",
       });
-    }, 2000);
+    }, 1500);
   };
 
   return (
     <Layout>
-      <div className="bg-gradient-to-r from-blue-800 to-indigo-900 py-12 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold mb-4">Landing Predictor</h1>
-          <p className="text-xl max-w-3xl">
-            Use our advanced ML model to predict landing outcomes and receive corrective measures 
-            to prevent hard landings and enhance aviation safety.
-          </p>
-        </div>
-      </div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-          <div className="p-6 border-b">
-            <h2 className="text-2xl font-semibold mb-4">Input Flight Data</h2>
-            
-            {/* Tabs for auto/manual selection */}
-            <div className="flex border-b mb-6">
-              <button 
-                className={`px-6 py-2 ${activeTab === 'auto' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500'}`}
-                onClick={() => setActiveTab('auto')}
-              >
-                Load Flight ID
-              </button>
-              <button 
-                className={`px-6 py-2 ${activeTab === 'manual' ? 'text-blue-600 border-b-2 border-blue-600 font-medium' : 'text-gray-500'}`}
-                onClick={() => setActiveTab('manual')}
-              >
-                Manual Entry
-              </button>
-            </div>
-            
-            {activeTab === 'auto' ? (
-              <div className="flex flex-col md:flex-row gap-4 items-center mb-6">
-                <div className="w-full md:w-96">
-                  <label htmlFor="flightId" className="block text-sm font-medium text-gray-700 mb-1">
-                    Flight ID
-                  </label>
-                  <input
-                    type="text"
-                    id="flightId"
-                    value={flightId}
-                    onChange={(e) => setFlightId(e.target.value)}
-                    placeholder="Enter Flight ID (e.g., FL1234)"
-                    className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="flex gap-3 self-end">
-                  <Button
-                    onClick={loadFlightData}
-                    disabled={isLoading}
-                    className="mt-2 md:mt-0"
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Load Flight Data
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                {flightParameters.map((param) => (
-                  <div key={param.name} className="flex flex-col">
-                    <label htmlFor={param.name} className="block text-sm font-medium text-gray-700 mb-1">
-                      {param.label}
-                    </label>
-                    {param.name === "Runway_Condition" ? (
-                      <select
-                        id={param.name}
-                        value={String(manualParams[param.name])}
-                        onChange={(e) => handleParamChange(param.name, e.target.value)}
-                        className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        disabled={isLoading}
-                      >
-                        <option value="Dry">Dry</option>
-                        <option value="Wet">Wet</option>
-                        <option value="Snow">Snow</option>
-                        <option value="Ice">Ice</option>
-                      </select>
-                    ) : (
-                      <input
-                        type="number"
-                        id={param.name}
-                        value={String(manualParams[param.name])}
-                        onChange={(e) => handleParamChange(param.name, e.target.value)}
-                        className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        disabled={isLoading}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            <div className="flex flex-wrap gap-4">
-              <Button onClick={loadWeatherData} disabled={isLoading} variant="outline">
-                <CloudLightning className="mr-2 h-4 w-4" />
-                Load Weather Data
-              </Button>
-              <Button onClick={predict} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
-                Predict Landing Risk
-              </Button>
-            </div>
+      <div className="min-h-screen bg-cover bg-center" style={{
+        backgroundImage: 'url(https://images.unsplash.com/photo-1540962351504-03099e0a754b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80)',
+        backgroundBlendMode: 'overlay',
+        backgroundColor: 'rgba(0, 20, 50, 0.7)',
+      }}>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-white">Safe Land AI: Hard Landing Prediction</h1>
           </div>
           
-          {/* Prediction Results */}
-          {prediction && (
-            <div className="p-6 bg-gray-50">
-              <h3 className="text-xl font-semibold mb-4">Prediction Results</h3>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            {parameters.slice(0, 3).map((param) => (
+              <div key={param.id} className="flex flex-col">
+                <label className="text-white mb-1">{param.label} ({param.unit}):</label>
+                <input
+                  type="text"
+                  value={param.value}
+                  onChange={(e) => handleParameterChange(param.id, e.target.value)}
+                  className="p-2 rounded bg-white/90"
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            {parameters.slice(3, 6).map((param) => (
+              <div key={param.id} className="flex flex-col">
+                <label className="text-white mb-1">{param.label} ({param.unit}):</label>
+                <input
+                  type="text"
+                  value={param.value}
+                  onChange={(e) => handleParameterChange(param.id, e.target.value)}
+                  className="p-2 rounded bg-white/90"
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            {parameters.slice(6, 9).map((param) => (
+              <div key={param.id} className="flex flex-col">
+                <label className="text-white mb-1">{param.label} ({param.unit}):</label>
+                {param.id === 'runway' ? (
+                  <select
+                    value={param.value}
+                    onChange={(e) => handleParameterChange(param.id, e.target.value)}
+                    className="p-2 rounded bg-white/90"
+                  >
+                    <option value="Dry">Dry</option>
+                    <option value="Wet">Wet</option>
+                    <option value="Snow">Snow</option>
+                    <option value="Ice">Ice</option>
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={param.value}
+                    onChange={(e) => handleParameterChange(param.id, e.target.value)}
+                    className="p-2 rounded bg-white/90"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            {parameters.slice(9, 12).map((param) => (
+              <div key={param.id} className="flex flex-col">
+                <label className="text-white mb-1">{param.label} ({param.unit}):</label>
+                <input
+                  type="text"
+                  value={param.value}
+                  onChange={(e) => handleParameterChange(param.id, e.target.value)}
+                  className="p-2 rounded bg-white/90"
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            {parameters.slice(12, 15).map((param) => (
+              <div key={param.id} className="flex flex-col">
+                <label className="text-white mb-1">{param.label} ({param.unit}):</label>
+                <input
+                  type="text"
+                  value={param.value}
+                  onChange={(e) => handleParameterChange(param.id, e.target.value)}
+                  className="p-2 rounded bg-white/90"
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            {parameters.slice(15).map((param) => (
+              <div key={param.id} className="flex flex-col">
+                <label className="text-white mb-1">{param.label} ({param.unit}):</label>
+                <input
+                  type="text"
+                  value={param.value}
+                  onChange={(e) => handleParameterChange(param.id, e.target.value)}
+                  className="p-2 rounded bg-white/90"
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex justify-center gap-4 mb-8">
+            <Button 
+              onClick={loadFlightData} 
+              disabled={isLoading} 
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              Load Flight Data
+            </Button>
+            <Button 
+              onClick={loadWeatherData} 
+              disabled={isLoading} 
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              Load Weather Data
+            </Button>
+            <Button 
+              onClick={predictLanding} 
+              disabled={isLoading} 
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              Predict Landing Risk
+            </Button>
+          </div>
+          
+          {showResults && prediction && (
+            <Card className="bg-white/95 p-8 mb-8">
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold mb-2">Prediction: {prediction.outcome}</h2>
+                <p className="text-xl">Probability of Hard Landing: {prediction.probability.toFixed(2)}%</p>
+              </div>
               
-              <div className="flex flex-col lg:flex-row gap-6">
-                <div className="lg:w-1/3">
-                  <div className={`p-6 rounded-lg shadow-md ${
-                    prediction.outcome === 'Hard Landing' ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'
-                  }`}>
-                    <div className="flex justify-between items-center mb-4">
-                      <h4 className="text-lg font-medium">Landing Outcome</h4>
-                      {prediction.outcome === 'Hard Landing' && (
-                        <AlertTriangle className="h-6 w-6 text-red-500" />
-                      )}
-                    </div>
-                    
-                    <div className="text-center py-4">
-                      <p className={`text-2xl font-bold ${
-                        prediction.outcome === 'Hard Landing' ? 'text-red-600' : 'text-green-600'
-                      }`}>
-                        {prediction.outcome}
-                      </p>
-                      <p className="text-3xl font-bold mt-2">
-                        {prediction.probability}%
-                      </p>
-                      <p className="mt-2 text-gray-600">
-                        Risk Level: <span className={`font-medium ${
-                          prediction.riskLevel === 'High' ? 'text-red-600' : 
-                          prediction.riskLevel === 'Medium' ? 'text-amber-600' : 
-                          'text-green-600'
-                        }`}>{prediction.riskLevel}</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="lg:w-2/3">
-                  <div className="bg-white p-6 rounded-lg shadow-md h-full">
-                    <h4 className="text-lg font-medium mb-4">SHAP Feature Importance Chart</h4>
-                    <div className="bg-gray-100 p-4 rounded-md text-center h-64 flex items-center justify-center">
-                      <p className="text-gray-500">SHAP chart visualization would appear here</p>
-                    </div>
-                  </div>
+              <div className="mb-8">
+                <h3 className="text-2xl font-semibold mb-4">Contributing Factors (SHAP):</h3>
+                <div className="h-96 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={prediction.factors}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 150,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        type="number"
+                        label={{ value: 'SHAP Value (Impact on Hard Landing)', position: 'insideBottom', offset: -5 }}
+                      />
+                      <YAxis
+                        dataKey="name"
+                        type="category"
+                        tick={{ fontSize: 12 }}
+                        width={150}
+                      />
+                      <Tooltip />
+                      <Bar
+                        dataKey="value"
+                        fill={(d) => (d.value >= 0 ? "#ff6b6b" : "#4ecdc4")}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
               
-              {prediction.outcome === 'Hard Landing' && (
-                <div className="mt-6 p-6 bg-amber-50 border border-amber-200 rounded-lg shadow-md">
-                  <h4 className="text-lg font-medium mb-4">Corrective Measures</h4>
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>Reduce approach speed by 5-10 knots to minimize touchdown velocity</li>
-                    <li>Increase flap deployment to 40 degrees for better lift</li>
-                    <li>Apply more gradual throttle reduction during the flare</li>
-                    <li>Adjust descent rate to maintain -500 fpm during final approach</li>
-                    <li>Consider alternative runway with less crosswind component</li>
-                  </ul>
-                  <div className="mt-4">
-                    <Link to="/corrective-measures">
-                      <Button variant="outline">
-                        View Detailed Corrective Measures
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
+              <div>
+                <h3 className="text-2xl font-semibold mb-3">Corrective Measures:</h3>
+                <ul className="list-disc pl-6 space-y-2">
+                  {prediction.correctiveMeasures.map((measure, index) => (
+                    <li key={index}>{measure}</li>
+                  ))}
+                </ul>
+              </div>
+            </Card>
           )}
         </div>
       </div>
