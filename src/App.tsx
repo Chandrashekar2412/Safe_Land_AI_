@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Services from "./pages/Services";
 import LandingPredictor from "./pages/services/LandingPredictor";
 import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/NotFound";
@@ -65,6 +66,7 @@ const App = () => (
           <Route path="/quick-links" element={<QuickLinks />} />
           
           {/* Services Section Routes */}
+          <Route path="/services" element={<Services />} />
           <Route path="/landing-predictor" element={<LandingPredictor />} />
           <Route path="/pilot-assistance" element={<PilotAssistance />} />
           <Route path="/corrective-measures" element={<CorrectiveMeasures />} />
