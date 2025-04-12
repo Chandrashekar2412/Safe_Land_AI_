@@ -1,18 +1,73 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import Layout from '@/components/layout/Layout';
+import { login } from '@/services/auth';
+import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { setAuth } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    remember: false
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, this would authenticate the user
-    console.log('Login form submitted');
+    
+    if (!formData.email || !formData.password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await login({
+        email: formData.email,
+        password: formData.password
+      });
+      
+      toast({
+        title: "Success",
+        description: "Login successful!",
+      });
+      
+      // Update auth context with user data and token
+      setAuth(result.user, result.token);
+      
+      // Redirect to dashboard
+      navigate('/dashboard');
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: error instanceof Error ? error.message : "Invalid email or password",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -20,7 +75,7 @@ const Login = () => {
       <div className="flex items-center justify-center min-h-[80vh] py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Sign in to Safe Land AI</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Sign in to Safe Land Assist</CardTitle>
             <CardDescription className="text-center">
               Enter your email and password to access your account
             </CardDescription>
@@ -29,7 +84,14 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="name@example.com" required />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="name@example.com" 
+                  value={formData.email}
+                  onChange={handleChange}
+                  required 
+                />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -41,10 +103,22 @@ const Login = () => {
                     Forgot password?
                   </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  value={formData.password}
+                  onChange={handleChange}
+                  required 
+                />
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
+                <Checkbox 
+                  id="remember" 
+                  checked={formData.remember}
+                  onCheckedChange={(checked) => 
+                    setFormData(prev => ({ ...prev, remember: checked === true }))
+                  }
+                />
                 <label 
                   htmlFor="remember" 
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -52,7 +126,9 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-              <Button type="submit" className="w-full">Sign in</Button>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Signing in...' : 'Sign in'}
+              </Button>
             </form>
             
             <div className="relative my-6">
@@ -80,6 +156,12 @@ const Login = () => {
               Don't have an account?{" "}
               <Link to="/register" className="text-blue-600 hover:text-blue-800 font-medium">
                 Sign up
+              </Link>
+            </div>
+            <div className="text-center text-sm">
+              Need admin access?{" "}
+              <Link to="/admin/register" className="text-blue-600 hover:text-blue-800 font-medium">
+                Register as Admin
               </Link>
             </div>
           </CardFooter>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -8,12 +7,12 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Safe Land AI</h3>
+            <h3 className="text-lg font-semibold mb-4">Safe Land Assist</h3>
             <p className="text-gray-300 text-sm">
               A machine learning based system for hard landing prediction and pilot assistance in commercial flights.
             </p>
             <div className="mt-4">
-              <img src="/logo.png" alt="Safe Land AI Logo" className="h-12 bg-white p-1 rounded" />
+              <img src="/logo.png" alt="Safe Land Assist Logo" className="h-12 bg-white p-1 rounded" />
             </div>
           </div>
 
@@ -42,9 +41,9 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <ul className="space-y-2 text-sm">
-              <li className="text-gray-300">Email: info@safelandai.com</li>
-              <li className="text-gray-300">Phone: +1 234 567 8901</li>
-              <li className="text-gray-300">Address: Aerospace Center, 123 Aviation Blvd, Flight City</li>
+              <li className="text-gray-300">Email: info@sreenidhi.edu.in</li>
+              <li className="text-gray-300">Phone: +91 40 2763 1234</li>
+              <li className="text-gray-300">Address: Sreenidhi Institute of Science and Technology, Yamnampet, Ghatkesar, Hyderabad, Telangana 501301</li>
               <li className="mt-4">
                 <Link to="/contact-us/message" className="text-blue-400 hover:text-blue-300">Send us a message</Link>
               </li>
@@ -53,7 +52,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Safe Land AI. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Safe Land Assist. All rights reserved.</p>
         </div>
       </div>
     </footer>

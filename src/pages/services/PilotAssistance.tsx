@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PageTemplate from '@/components/PageTemplate';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -120,7 +119,7 @@ const PilotAssistance = () => {
         <h2 className="text-2xl font-semibold mb-4 text-blue-700">How Our Pilot Assistance Works</h2>
         <div className="space-y-4">
           <p className="text-gray-600">
-            Safe Land AI's pilot assistance technology operates on a continuous feedback loop system
+            Safe Land Assist's pilot assistance technology operates on a continuous feedback loop system
             that processes multiple data streams in real-time:
           </p>
           <ol className="list-decimal pl-5 space-y-2 text-gray-600">

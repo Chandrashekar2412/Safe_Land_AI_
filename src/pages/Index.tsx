@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,11 +9,22 @@ const Index = () => {
     <Layout>
       {/* Hero Section */}
       <div className="relative bg-gradient-to-r from-blue-900 to-indigo-900 text-white">
-        <div className="absolute inset-0 bg-[url('/aviation-bg.jpg')] bg-cover bg-center opacity-20"></div>
+        <div className="absolute inset-0">
+          <img
+            src="/flight1.jpg"
+            alt="Flight background"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2074&q=80";
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-indigo-900/90"></div>
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Safe Land AI
+              Safe Land Assist
             </h1>
             <p className="text-xl md:text-2xl mb-10">
               Advanced machine learning for hard landing prediction and pilot assistance in commercial flights
@@ -94,9 +104,9 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:flex lg:items-center lg:space-x-12">
             <div className="lg:w-1/2 mb-8 lg:mb-0">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">About Safe Land AI</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">About Safe Land Assist</h2>
               <p className="text-lg text-gray-700 mb-6">
-                Safe Land AI is a state-of-the-art machine learning system designed to predict and prevent hard landings in commercial aviation.
+                Safe Land Assist is a state-of-the-art machine learning system designed to predict and prevent hard landings in commercial aviation.
               </p>
               <p className="text-lg text-gray-700 mb-6">
                 Our sophisticated algorithms analyze flight parameters, weather conditions, and pilot inputs to provide real-time landing risk assessments and actionable recommendations.

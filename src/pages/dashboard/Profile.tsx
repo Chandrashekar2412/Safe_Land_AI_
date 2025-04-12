@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PageTemplate from '@/components/PageTemplate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,8 +7,79 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
+import { updateProfile } from '@/services/user';
+import { User } from '@/types/auth';
 
 const Profile = () => {
+  const { user, setAuth } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<Partial<User>>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    organization: '',
+    role: ''
+  });
+
+  // Update form data when user data changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        organization: user.organization || '',
+        role: user.role || ''
+      });
+    }
+  }, [user]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    if (!formData.email) {
+      toast({
+        title: "Error",
+        description: "Email is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await updateProfile(formData);
+      
+      // Update the auth context with the new user data and token
+      setAuth(result.user, result.token);
+      
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error) {
+      console.error('Profile update error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update profile",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <PageTemplate
       title="Profile"
@@ -45,24 +115,67 @@ const Profile = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" defaultValue="John" className="mt-1" />
+                    <Input 
+                      id="firstName" 
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="mt-1" 
+                    />
                   </div>
                   <div>
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" defaultValue="Smith" className="mt-1" />
+                    <Input 
+                      id="lastName" 
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="mt-1" 
+                    />
                   </div>
                   <div>
                     <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" defaultValue="john.smith@example.com" className="mt-1" />
+                    <Input 
+                      id="email" 
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="mt-1" 
+                    />
                   </div>
                   <div>
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" defaultValue="+1 (555) 123-4567" className="mt-1" />
+                    <Input 
+                      id="phone" 
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="mt-1" 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="organization">Organization</Label>
+                    <Input 
+                      id="organization" 
+                      value={formData.organization}
+                      onChange={handleChange}
+                      className="mt-1" 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="role">Role</Label>
+                    <Input 
+                      id="role" 
+                      value={formData.role}
+                      onChange={handleChange}
+                      className="mt-1" 
+                    />
                   </div>
                 </div>
                 
                 <div className="text-right">
-                  <Button>Save Changes</Button>
+                  <Button 
+                    onClick={handleSaveChanges}
+                    disabled={loading}
+                  >
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </Button>
                 </div>
               </div>
             </CardContent>

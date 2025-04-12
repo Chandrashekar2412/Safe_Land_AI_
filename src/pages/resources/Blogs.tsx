@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PageTemplate from '@/components/PageTemplate';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +40,7 @@ const Blogs = () => {
     },
     {
       id: 4,
-      title: "Case Study: How Safe Land AI Prevented a Hard Landing at JFK",
+      title: "Case Study: How Safe Land Assist Prevented a Hard Landing at JFK",
       excerpt: "A real-world example of how our predictive system helped a pilot avoid a potential hard landing.",
       author: "Capt. Lisa Rodriguez",
       date: "March 15, 2025",

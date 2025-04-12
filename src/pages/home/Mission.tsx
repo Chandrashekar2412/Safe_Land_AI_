@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PageTemplate from '@/components/PageTemplate';
 
@@ -11,7 +10,7 @@ const Mission = () => {
       <div className="bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-6 text-blue-700">Mission Statement</h2>
         <p className="text-gray-600 mb-6 text-lg">
-          At Safe Land AI, our mission is to revolutionize aviation safety by providing pilots, airlines, and air traffic controllers
+          At Safe Land Assist, our mission is to revolutionize aviation safety by providing pilots, airlines, and air traffic controllers
           with cutting-edge predictive technology that prevents hard landings and enhances overall flight safety.
         </p>
         

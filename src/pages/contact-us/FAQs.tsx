@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import PageTemplate from '@/components/PageTemplate';
 import { 
@@ -21,20 +20,20 @@ const FAQs = () => {
       name: "General",
       faqs: [
         {
-          question: "What is Safe Land AI?",
-          answer: "Safe Land AI is a machine learning system designed to predict and prevent hard landings in commercial aviation. Our technology analyzes flight data, weather conditions, and other variables to provide real-time landing risk assessments and recommendations to pilots."
+          question: "What is Safe Land Assist?",
+          answer: "Safe Land Assist is a machine learning system designed to predict and prevent hard landings in commercial aviation. Our technology analyzes flight data, weather conditions, and other variables to provide real-time landing risk assessments and recommendations to pilots."
         },
         {
           question: "How accurate are your landing predictions?",
           answer: "Our landing prediction system achieves over 93% accuracy in real-world testing. The system is continuously learning and improving based on new data, with accuracy rates increasing over time as more flight data is processed."
         },
         {
-          question: "Is Safe Land AI certified for commercial aviation use?",
-          answer: "Yes, Safe Land AI has received certification from major aviation authorities including the FAA, EASA, and others for use as a supplementary safety system. Our technology meets or exceeds all relevant aviation safety standards and regulations."
+          question: "Is Safe Land Assist certified for commercial aviation use?",
+          answer: "Yes, Safe Land Assist has received certification from major aviation authorities including the FAA, EASA, and others for use as a supplementary safety system. Our technology meets or exceeds all relevant aviation safety standards and regulations."
         },
         {
-          question: "How does Safe Land AI differ from existing systems?",
-          answer: "Unlike traditional systems that rely on fixed rules or simple thresholds, Safe Land AI uses advanced neural networks to analyze thousands of variables simultaneously, learning complex patterns that humans might miss. Our system is predictive rather than reactive, identifying potential issues before they become critical."
+          question: "How does Safe Land Assist differ from existing systems?",
+          answer: "Unlike traditional systems that rely on fixed rules or simple thresholds, Safe Land Assist uses advanced neural networks to analyze thousands of variables simultaneously, learning complex patterns that humans might miss. Our system is predictive rather than reactive, identifying potential issues before they become critical."
         }
       ]
     },
@@ -43,11 +42,11 @@ const FAQs = () => {
       name: "Technical",
       faqs: [
         {
-          question: "What data sources does Safe Land AI use?",
-          answer: "Safe Land AI integrates data from multiple sources including aircraft sensors, weather services, airport databases, runway condition reports, and historical landing records. All data is processed in real-time to provide the most accurate predictions possible."
+          question: "What data sources does Safe Land Assist use?",
+          answer: "Safe Land Assist integrates data from multiple sources including aircraft sensors, weather services, airport databases, runway condition reports, and historical landing records. All data is processed in real-time to provide the most accurate predictions possible."
         },
         {
-          question: "How is Safe Land AI integrated with aircraft systems?",
+          question: "How is Safe Land Assist integrated with aircraft systems?",
           answer: "Our system can be integrated through various methods depending on aircraft type and operator preference. Common integration options include connection to Flight Data Monitoring systems, installation of supplementary hardware in the cockpit, or integration with existing electronic flight bag solutions."
         },
         {

@@ -1,18 +1,105 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Layout from '@/components/layout/Layout';
+import { register, validatePassword } from '@/services/auth';
+import { useToast } from '@/components/ui/use-toast';
 
 const Register = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    organization: '',
+    role: '',
+    password: '',
+    confirmPassword: '',
+    terms: false
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleRoleChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      role: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, this would register the user
-    console.log('Register form submitted');
+    
+    // Validate form
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!validatePassword(formData.password)) {
+      toast({
+        title: "Invalid Password",
+        description: "Password must be at least 8 characters and include a number and symbol",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.terms) {
+      toast({
+        title: "Error",
+        description: "Please accept the terms and conditions",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { confirmPassword, terms, ...registrationData } = formData;
+      await register(registrationData);
+      
+      toast({
+        title: "Success",
+        description: "Registration successful! Please log in.",
+      });
+      
+      navigate('/login');
+    } catch (error) {
+      toast({
+        title: "Registration Failed",
+        description: error instanceof Error ? error.message : "An error occurred during registration",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,27 +117,48 @@ const Register = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" required />
+                  <Input 
+                    id="firstName" 
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" required />
+                  <Input 
+                    id="lastName" 
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    required 
+                  />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="name@example.com" required />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="name@example.com" 
+                  value={formData.email}
+                  onChange={handleChange}
+                  required 
+                />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="organization">Organization</Label>
-                <Input id="organization" />
+                <Input 
+                  id="organization" 
+                  value={formData.organization}
+                  onChange={handleChange}
+                />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select>
+                <Select onValueChange={handleRoleChange} value={formData.role}>
                   <SelectTrigger id="role">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
@@ -68,7 +176,13 @@ const Register = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" required />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  value={formData.password}
+                  onChange={handleChange}
+                  required 
+                />
                 <p className="text-xs text-gray-500">
                   Password must be at least 8 characters and include a number and symbol
                 </p>
@@ -76,11 +190,24 @@ const Register = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input id="confirmPassword" type="password" required />
+                <Input 
+                  id="confirmPassword" 
+                  type="password" 
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required 
+                />
               </div>
               
               <div className="flex items-center space-x-2 pt-2">
-                <input type="checkbox" id="terms" className="h-4 w-4" required />
+                <input 
+                  type="checkbox" 
+                  id="terms" 
+                  className="h-4 w-4" 
+                  checked={formData.terms}
+                  onChange={handleChange}
+                  required 
+                />
                 <label htmlFor="terms" className="text-sm text-gray-600">
                   I agree to the{" "}
                   <a href="#" className="text-blue-600 hover:text-blue-800">Terms of Service</a>
@@ -89,7 +216,9 @@ const Register = () => {
                 </label>
               </div>
               
-              <Button type="submit" className="w-full">Create Account</Button>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Creating Account...' : 'Create Account'}
+              </Button>
             </form>
             
             <div className="relative my-6">

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PageTemplate from '@/components/PageTemplate';
 import { Button } from '@/components/ui/button';
@@ -159,7 +158,7 @@ const SendMessage = () => {
             </div>
             <p className="text-gray-600">
               Our dedicated team is available to assist with any questions about our technology,
-              implementation process, or how Safe Land AI can benefit your organization.
+              implementation process, or how Safe Land Assist can benefit your organization.
             </p>
           </div>
         </div>

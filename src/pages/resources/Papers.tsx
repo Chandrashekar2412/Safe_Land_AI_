@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PageTemplate from '@/components/PageTemplate';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,8 +54,8 @@ const Papers = () => {
     {
       id: "WP-2024-008",
       title: "Economic Benefits of Predictive Landing Systems: ROI Analysis",
-      authors: "Safe Land AI Business Analysis Team",
-      publication: "Safe Land AI White Papers",
+      authors: "Safe Land Assist Business Analysis Team",
+      publication: "Safe Land Assist White Papers",
       year: "2024",
       abstract: "A detailed ROI analysis of implementing predictive landing systems in commercial airlines, including maintenance cost reduction and safety improvement metrics.",
       keywords: ["ROI", "Economic Analysis", "Cost Reduction", "Implementation"],

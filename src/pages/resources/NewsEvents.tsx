@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PageTemplate from '@/components/PageTemplate';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,9 +10,9 @@ const NewsEvents = () => {
   const newsItems = [
     {
       id: 1,
-      title: "Safe Land AI Selected as Finalist for Aviation Technology Award",
+      title: "Safe Land Assist Selected as Finalist for Aviation Technology Award",
       date: "April 3, 2025",
-      content: "Safe Land AI has been selected as a finalist for the prestigious Global Aviation Technology Award, recognizing our innovative approach to landing safety enhancement through machine learning.",
+      content: "Safe Land Assist has been selected as a finalist for the prestigious Global Aviation Technology Award, recognizing our innovative approach to landing safety enhancement through machine learning.",
       category: "Company News",
       image: "/placeholder.svg"
     },
@@ -29,13 +28,13 @@ const NewsEvents = () => {
       id: 3,
       title: "Research Study Shows 94% Reduction in Hard Landings",
       date: "March 20, 2025",
-      content: "A 12-month study with our airline partners has shown that Safe Land AI's prediction system led to a 94% reduction in hard landings, significantly improving passenger comfort and reducing aircraft wear.",
+      content: "A 12-month study with our airline partners has shown that Safe Land Assist's prediction system led to a 94% reduction in hard landings, significantly improving passenger comfort and reducing aircraft wear.",
       category: "Research",
       image: "/placeholder.svg"
     },
     {
       id: 4,
-      title: "Safe Land AI Expands Team with Top AI Researchers",
+      title: "Safe Land Assist Expands Team with Top AI Researchers",
       date: "March 15, 2025",
       content: "We're pleased to welcome Dr. Elena Rodriguez and Dr. James Chen to our research team, bringing expertise in deep learning and aviation systems to enhance our prediction algorithms.",
       category: "Team News",

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PageTemplate from '@/components/PageTemplate';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,31 +6,13 @@ import { MapPin, Phone, Mail, Clock, Globe, Building } from 'lucide-react';
 const ContactDetails = () => {
   const offices = [
     {
-      name: "Headquarters",
-      address: "123 Aviation Way, Suite 500",
-      city: "San Francisco, CA 94111",
-      country: "United States",
-      phone: "+1 (555) 123-4567",
-      email: "info@safelandai.com",
-      hours: "Mon-Fri: 8AM - 6PM PST"
-    },
-    {
-      name: "European Office",
-      address: "42 Regent Street",
-      city: "London, SW1Y 4PE",
-      country: "United Kingdom",
-      phone: "+44 20 1234 5678",
-      email: "europe@safelandai.com",
-      hours: "Mon-Fri: 9AM - 5PM GMT"
-    },
-    {
-      name: "Asia-Pacific Office",
-      address: "88 Queens Road",
-      city: "Singapore, 123456",
-      country: "Singapore",
-      phone: "+65 6123 4567",
-      email: "apac@safelandai.com",
-      hours: "Mon-Fri: 9AM - 5PM SGT"
+      name: "Sreenidhi Institute of Science and Technology",
+      address: "Yamnampet, Ghatkesar",
+      city: "Hyderabad, Telangana 501301",
+      country: "India",
+      phone: "+91 40 2763 1234",
+      email: "info@sreenidhi.edu.in",
+      hours: "Monday - Friday: 9:00 AM - 5:00 PM"
     }
   ];
 

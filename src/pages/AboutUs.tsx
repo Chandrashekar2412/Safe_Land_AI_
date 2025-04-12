@@ -1,13 +1,49 @@
-
 import React from 'react';
 import Layout from '@/components/layout/Layout';
+import { LinkedinIcon, MailIcon } from 'lucide-react';
 
 const AboutUs = () => {
+  const teamMembers = [
+    {
+      name: "V. Chandrashekar",
+      role: "Team Member",
+      bio: "Information Technology, B.Tech, Sreenidhi Institute of Science and Technology",
+      image: "/team-photos/chandrashekar.jpg",
+      fallbackImage: "/placeholder.svg",
+      links: {
+        linkedin: "https://www.linkedin.com/in/v-chandrashekar-1293",
+        email: "mailto:21311a1293@sreenidhi.edu.in"
+      }
+    },
+    {
+      name: "C. Praneeth Kumar",
+      role: "Team Member",
+      bio: "Information Technology, B.Tech, Sreenidhi Institute of Science and Technology",
+      image: "/team-photos/praneeth.jpg",
+      fallbackImage: "/placeholder.svg",
+      links: {
+        linkedin: "https://www.linkedin.com/in/praneeth-kumar-c",
+        email: "mailto:21311a1294@sreenidhi.edu.in"
+      }
+    },
+    {
+      name: "C. Rajashekar",
+      role: "Team Member",
+      bio: "Information Technology, B.Tech, Sreenidhi Institute of Science and Technology",
+      image: "/team-photos/rajashekar.jpg",
+      fallbackImage: "/placeholder.svg",
+      links: {
+        linkedin: "https://www.linkedin.com/in/rajashekar-c-1210",
+        email: "mailto:22315a1210@sreenidhi.edu.in"
+      }
+    }
+  ];
+
   return (
     <Layout>
       <div className="bg-gradient-to-r from-blue-800 to-indigo-900 py-12 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold mb-4">About Safe Land AI</h1>
+          <h1 className="text-3xl font-bold mb-4">About Safe Land Assist</h1>
           <p className="text-xl max-w-3xl">
             Learn about our mission to enhance aviation safety through advanced machine learning technology.
           </p>
@@ -19,7 +55,7 @@ const AboutUs = () => {
           <div>
             <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
             <p className="text-gray-600 mb-4">
-              Safe Land AI is dedicated to revolutionizing aviation safety through advanced artificial intelligence 
+              Safe Land Assist is dedicated to revolutionizing aviation safety through advanced artificial intelligence 
               and machine learning technologies. Our mission is to predict and prevent hard landings, 
               thereby reducing incidents, saving lives, and minimizing aircraft damage.
             </p>
@@ -60,13 +96,35 @@ const AboutUs = () => {
         
         <div className="mt-16">
           <h2 className="text-2xl font-semibold mb-6 text-center">Meet Our Team</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[1, 2, 3, 4].map((member) => (
-              <div key={member} className="bg-white p-4 rounded-lg shadow-md text-center">
-                <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
-                <h3 className="font-medium text-lg">Team Member {member}</h3>
-                <p className="text-gray-600">Position Title</p>
-                <p className="text-sm text-gray-500 mt-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {teamMembers.map((member, index) => (
+              <div key={index} className="bg-white p-6 rounded-lg shadow-md text-center">
+                <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden">
+                  <img 
+                    src={member.image} 
+                    alt={member.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = member.fallbackImage;
+                    }}
+                  />
+                </div>
+                <h3 className="font-medium text-lg">{member.name}</h3>
+                <p className="text-blue-700 font-medium mb-2">{member.role}</p>
+                <p className="text-sm text-gray-600 mb-4">{member.bio}</p>
+                <div className="flex justify-center space-x-4">
+                  {member.links.linkedin && (
+                    <a href={member.links.linkedin} className="text-gray-500 hover:text-blue-700" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                      <LinkedinIcon className="h-5 w-5" />
+                    </a>
+                  )}
+                  {member.links.email && (
+                    <a href={member.links.email} className="text-gray-500 hover:text-red-600" target="_blank" rel="noopener noreferrer" title="Email">
+                      <MailIcon className="h-5 w-5" />
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>
